@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://cbo86hoqafhjy"]
+
+[ext_resource type="Script" uid="uid://krh0253u7365" path="res://scripts/SpawnerPeces.gd" id="1_v5tjn"]
+
+[node name="SpawnerPeces" type="Node2D" unique_id=545650976 groups=["generadores"]]
+script = ExtResource("1_v5tjn")
+
+[node name="Timer" type="Timer" parent="." unique_id=471927874]
+wait_time = 3.0
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
