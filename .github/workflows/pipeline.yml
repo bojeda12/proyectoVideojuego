@@ -1,0 +1,36 @@
+name: Godot CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+
+      - name: Instalar Godot
+        run: |
+          wget https://downloads.tuxfamily.org/godotengine/4.2/Godot_v4.2-stable_linux.x86_64.zip
+          unzip Godot_v4.2-stable_linux.x86_64.zip
+          mv Godot_v4.2-stable_linux.x86_64 godot
+
+      - name: Verificar proyecto
+        run: |
+          ./godot --headless --quit
+
+      - name: Exportar juego
+        run: |
+          mkdir build
+          ./godot --headless --export-release "Windows Desktop" build/game.exe
+
+      - name: Subir build
+        uses: actions/upload-artifact@v3
+        with:
+          name: juego-ajolote
+          path: build/
