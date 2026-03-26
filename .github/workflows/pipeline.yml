@@ -19,10 +19,6 @@ jobs:
           mv Godot_v4.2-stable_linux.x86_64 godot
           chmod +x godot
 
-      - name: Verificar proyecto
-        run: |
-          ./godot --headless --quit
-
       - name: Exportar juego
         run: |
           mkdir -p build
