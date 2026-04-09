@@ -14,44 +14,51 @@ var volumen_musica = 1.0
 func _ready():
 	# 1. Configurar reproductor del Menú
 	add_child(reproductor_menu)
-	reproductor_menu.stream = load("res://musica/MusicaInicio.mp3")
-	reproductor_menu.bus = "Musica" # <--- CAMBIADO
+	
+	# ❌ COMENTADO porque no tienes los archivos MP3
+	# reproductor_menu.stream = load("res://musica/MusicaInicio.mp3")
+	
+	reproductor_menu.bus = "Musica"
 	
 	# 2. Configurar reproductor del Juego
 	add_child(reproductor_juego)
-	reproductor_juego.stream = load("res://musica/fondonivelCalmado.mp3") 
-	reproductor_juego.bus = "Musica" # <--- CAMBIADO
+	
+	# ❌ COMENTADO porque no tienes los archivos MP3
+	# reproductor_juego.stream = load("res://musica/fondonivelCalmado.mp3") 
+	
+	reproductor_juego.bus = "Musica"
 	
 	cargar_configuracion()
-	reproductor_menu.play()
+	
+	# ❌ NO reproducimos música porque no hay archivos
+	# reproductor_menu.play()
 
 # --- FUNCIONES DE MÚSICA CENTRALIZADAS ---
 
 func poner_musica_menu():
-	if reproductor_juego.playing:
-		reproductor_juego.stop()
-	if not reproductor_menu.playing:
-		reproductor_menu.play()
+	# ❌ No hace nada porque no hay audio
+	pass
 
 func poner_musica_juego():
-	if reproductor_menu.playing:
-		reproductor_menu.stop()
-	if not reproductor_juego.playing:
-		reproductor_juego.play()
+	# ❌ No hace nada porque no hay audio
+	pass
 
 func quitar_toda_la_musica():
 	reproductor_menu.stop()
 	reproductor_juego.stop()
 
-# --- FUNCIÓN PARA DISPAROS Y EFECTOS (SFX) ---
-# Úsala así: NombreDeTuAutoload.reproducir_sfx("res://sonidos/disparo.wav")
+# --- FUNCIÓN PARA EFECTOS (SFX) ---
+# ⚠️ También puede fallar si no existen archivos de sonido
 func reproducir_sfx(ruta_sonido: String):
 	var sfx_node = AudioStreamPlayer.new()
 	add_child(sfx_node)
+	
 	var sonido = load(ruta_sonido)
+	
+	# ✅ Validación para evitar errores en CI
 	if sonido:
 		sfx_node.stream = sonido
-		sfx_node.bus = "SFX" # <-- INDEPENDIENTE del sonido de fondo
+		sfx_node.bus = "SFX"
 		sfx_node.play()
 		sfx_node.finished.connect(sfx_node.queue_free)
 
@@ -60,7 +67,10 @@ func reproducir_sfx(ruta_sonido: String):
 func cargar_configuracion():
 	var error = config.load(SAVE_PATH)
 	if error != OK:
-		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), linear_to_db(volumen_musica))
+		AudioServer.set_bus_volume_db(
+			AudioServer.get_bus_index("Master"),
+			linear_to_db(volumen_musica)
+		)
 		return
 	
 	pantalla_completa = config.get_value("Opciones", "fullscreen", false)
@@ -69,15 +79,17 @@ func cargar_configuracion():
 	if pantalla_completa:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	
-	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), linear_to_db(volumen_musica))
+	AudioServer.set_bus_volume_db(
+		AudioServer.get_bus_index("Master"),
+		linear_to_db(volumen_musica)
+	)
 
 func guardar_configuracion():
 	config.set_value("Opciones", "fullscreen", pantalla_completa)
 	config.set_value("Opciones", "volumen", volumen_musica)
 	config.save(SAVE_PATH)
-	
-	
+
 # --- apagar la musica ---
 func quitar_musica_menu():
 	reproductor_menu.stop()
-	reproductor_juego.stop() # Apaga ambos por si acaso
+	reproductor_juego.stop()
