@@ -2,10 +2,31 @@ name: Godot CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+  pull_request:
 
 jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Godot
+        run: |
+          wget https://github.com/godotengine/godot/releases/download/4.2-stable/Godot_v4.2-stable_linux.x86_64.zip
+          unzip Godot_v4.2-stable_linux.x86_64.zip
+          mv Godot_v4.2-stable_linux.x86_64 godot
+          chmod +x godot
+
+      - name: Ejecutar pruebas
+        run: |
+          ./godot --headless --quit
+
   build:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -29,3 +50,21 @@ jobs:
         with:
           name: juego-ajolote
           path: build/
+
+  docker-scan:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t videojuego .
+
+      - name: Instalar Docker Scout
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s --
+
+      - name: Escanear vulnerabilidades
+        run: docker scout cves videojuego
